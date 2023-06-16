@@ -20,7 +20,6 @@ reverse_html = '''
         <input type="submit" value="Reverse" />
     </form>
     '''
-
 fibonacci_html = '''
     <form method="POST" action="/fibonacci">
         <input type="number" name="position" />
