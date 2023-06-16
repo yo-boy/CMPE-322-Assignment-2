@@ -6,7 +6,7 @@ import threading
 app_http = Flask(__name__)
 app_https = Flask(__name__)
 
-SERVER_URL_HTTP = 'http://localhost:80'
+SERVER_URL_HTTP = 'http://localhost:80' # sheeesh
 SERVER_URL_HTTPS = 'https://localhost:443'
 
 index_html =  '''
