@@ -1,0 +1,89 @@
+from flask import Flask, request
+import requests
+import ssl
+import threading
+
+app_http = Flask(__name__)
+app_https = Flask(__name__)
+
+SERVER_URL_HTTP = 'http://localhost:80'
+SERVER_URL_HTTPS = 'https://localhost:443'
+
+index_html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>String Reversal & Fibonacci Calculator</title>
+</head>
+<body>
+    <h1>String Reversal</h1>
+    <form method="POST" action="/reverse">
+        <input type="text" name="text" />
+        <input type="submit" value="Reverse" />
+    </form>
+
+    <h1>Fibonacci Calculator</h1>
+    <form method="POST" action="/fibonacci">
+        <input type="number" name="position" />
+        <input type="submit" value="Calculate" />
+    </form>
+</body>
+</html>
+"""
+
+@app_http.route('/')
+def home_http():
+    return index_html
+
+@app_http.route('/reverse', methods=['POST'])
+def reverse_http():
+    text = request.form['text']
+    response = send_request(SERVER_URL_HTTP, '/reverse', {'text': text})
+    return f'Reversed text: {response}'
+
+@app_http.route('/fibonacci', methods=['POST'])
+def fibonacci_http():
+    position = int(request.form['position'])
+    response = send_request(SERVER_URL_HTTP, '/fibonacci', {'position': position})
+    return f'Fibonacci number at position {position}: {response}'
+
+@app_https.route('/')
+def home_https():
+    return index_html
+
+@app_https.route('/reverse', methods=['POST'])
+def reverse_https():
+    text = request.form['text']
+    response = send_request(SERVER_URL_HTTPS,'/reverse', {'text': text})
+    return f'Reversed text: {response}'
+
+@app_https.route('/fibonacci', methods=['POST'])
+def fibonacci_https():
+    position = int(request.form['position'])
+    response = send_request(SERVER_URL_HTTPS, '/fibonacci', {'position': position})
+    return f'Fibonacci number at position {position}: {response}'
+
+def send_request(base_url, endpoint, data):
+    url = f'{base_url}{endpoint}'
+    response = requests.post(url, data=data, verify=False)
+    return response.text
+    
+def run_http_server():
+    # Run the HTTP server on port 900
+    app_http.run(port=900)
+
+def run_https_server():
+    # Run the HTTPS server on port 901
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain('./certificate.crt', './private_key.key')  # Replace with your certificate and private key paths
+    app_https.run(port=901, ssl_context=context)
+
+if __name__ == '__main__':
+    http_thread = threading.Thread(target=run_http_server)
+    https_thread = threading.Thread(target=run_https_server)
+
+    http_thread.start()
+    https_thread.start()
+
+    http_thread.join()
+    https_thread.join()
