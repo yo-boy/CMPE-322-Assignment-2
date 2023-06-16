@@ -9,60 +9,66 @@ app_https = Flask(__name__)
 SERVER_URL_HTTP = 'http://localhost:80'
 SERVER_URL_HTTPS = 'https://localhost:443'
 
-index_html = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>String Reversal & Fibonacci Calculator</title>
-</head>
-<body>
-    <h1>String Reversal</h1>
+index_html =  '''
+    <a href="/reverse">Reverse a String</a>
+    <br>
+    <a href="/fibonacci">Calculate Fibonacci Number</a>
+    '''
+reverse_html = '''
     <form method="POST" action="/reverse">
         <input type="text" name="text" />
         <input type="submit" value="Reverse" />
     </form>
+    '''
 
-    <h1>Fibonacci Calculator</h1>
+fibonacci_html = '''
     <form method="POST" action="/fibonacci">
         <input type="number" name="position" />
         <input type="submit" value="Calculate" />
     </form>
-</body>
-</html>
-"""
+    '''
 
 @app_http.route('/')
 def home_http():
     return index_html
 
-@app_http.route('/reverse', methods=['POST'])
+@app_http.route('/reverse', methods=['GET', 'POST'])
 def reverse_http():
-    text = request.form['text']
-    response = send_request(SERVER_URL_HTTP, '/reverse', {'text': text})
-    return f'Reversed text: {response}'
+    if request.method == 'POST':
+        text = request.form['text']
+        response = send_request(SERVER_URL_HTTP, '/reverse', {'text': text})
+        return f'Reversed text: {response}'
+    return reverse_html
 
-@app_http.route('/fibonacci', methods=['POST'])
+@app_http.route('/fibonacci', methods=['GET', 'POST'])
 def fibonacci_http():
-    position = int(request.form['position'])
-    response = send_request(SERVER_URL_HTTP, '/fibonacci', {'position': position})
-    return f'Fibonacci number at position {position}: {response}'
-
+    if request.method == 'POST':
+        position = int(request.form['position'])
+        response = send_request(SERVER_URL_HTTP, '/fibonacci', {'position': position})
+        return f'Fibonacci number at position {position}: {response}'
+    return fibonacci_html
+    
 @app_https.route('/')
 def home_https():
     return index_html
 
-@app_https.route('/reverse', methods=['POST'])
-def reverse_https():
-    text = request.form['text']
-    response = send_request(SERVER_URL_HTTPS,'/reverse', {'text': text})
-    return f'Reversed text: {response}'
 
-@app_https.route('/fibonacci', methods=['POST'])
+@app_https.route('/reverse', methods=['GET', 'POST'])
+def reverse_http():
+    if request.method == 'POST':
+        text = request.form['text']
+        response = send_request(SERVER_URL_HTTPS,'/reverse', {'text': text})
+        return f'Reversed text: {response}'
+    return reverse_html
+
+@app_https.route('/fibonacci', methods=['GET', 'POST'])
 def fibonacci_https():
-    position = int(request.form['position'])
-    response = send_request(SERVER_URL_HTTPS, '/fibonacci', {'position': position})
-    return f'Fibonacci number at position {position}: {response}'
-
+    if request.method == 'POST':
+        position = int(request.form['position'])
+        response = send_request(SERVER_URL_HTTPS, '/fibonacci', {'position': position})
+        return f'Fibonacci number at position {position}: {response}'
+    return fibonacci_html
+    
 def send_request(base_url, endpoint, data):
     url = f'{base_url}{endpoint}'
     response = requests.post(url, data=data, verify=False)
