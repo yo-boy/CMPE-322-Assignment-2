@@ -3,11 +3,9 @@ import requests
 import ssl
 import threading
 
-app_http = Flask(__name__)
-app_https = Flask(__name__)
+app = Flask(__name__)
 
-SERVER_URL_HTTP = 'http://localhost:80'
-SERVER_URL_HTTPS = 'https://localhost:443'
+SERVER_URL = 'http://localhost:80'
 
 index_html =  '''
     <a href="/reverse">Reverse a String</a>
@@ -27,44 +25,23 @@ fibonacci_html = '''
     </form>
     '''
 
-@app_http.route('/')
-def home_http():
+@app.route('/')
+def home():
     return index_html
 
-@app_http.route('/reverse', methods=['GET', 'POST'])
-def reverse_http():
+@app.route('/reverse', methods=['GET', 'POST'])
+def reverse():
     if request.method == 'POST':
         text = request.form['text']
-        response = send_request(SERVER_URL_HTTP, '/reverse', {'text': text})
+        response = send_request(SERVER_URL, '/reverse', {'text': text})
         return f'Reversed text: {response}'
     return reverse_html
 
-@app_http.route('/fibonacci', methods=['GET', 'POST'])
-def fibonacci_http():
+@app.route('/fibonacci', methods=['GET', 'POST'])
+def fibonacci():
     if request.method == 'POST':
         position = int(request.form['position'])
-        response = send_request(SERVER_URL_HTTP, '/fibonacci', {'position': position})
-        return f'Fibonacci number at position {position}: {response}'
-    return fibonacci_html
-    
-@app_https.route('/')
-def home_https():
-    return index_html
-
-
-@app_https.route('/reverse', methods=['GET', 'POST'])
-def reverse_http():
-    if request.method == 'POST':
-        text = request.form['text']
-        response = send_request(SERVER_URL_HTTPS,'/reverse', {'text': text})
-        return f'Reversed text: {response}'
-    return reverse_html
-
-@app_https.route('/fibonacci', methods=['GET', 'POST'])
-def fibonacci_https():
-    if request.method == 'POST':
-        position = int(request.form['position'])
-        response = send_request(SERVER_URL_HTTPS, '/fibonacci', {'position': position})
+        response = send_request(SERVER_URL, '/fibonacci', {'position': position})
         return f'Fibonacci number at position {position}: {response}'
     return fibonacci_html
     
@@ -75,13 +52,14 @@ def send_request(base_url, endpoint, data):
     
 def run_http_server():
     # Run the HTTP server on port 900
-    app_http.run(port=900)
+    app.run(port=900)
 
 def run_https_server():
+    SERVER_URL = 'https://localhost:443'
     # Run the HTTPS server on port 901
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('./certificate.crt', './private_key.key')  # Replace with your certificate and private key paths
-    app_https.run(port=901, ssl_context=context)
+    app.run(port=901, ssl_context=context)
 
 if __name__ == '__main__':
     http_thread = threading.Thread(target=run_http_server)
