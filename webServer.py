@@ -7,9 +7,6 @@ import threading
 # create the required flask application
 app = Flask(__name__)
 
-# setting the server url to be used with http 
-serverURL = 'http://localhost:80'
-
 # defining the simple html for each of our pages
 # the index, the reverse string page, and the fibonacci page
 indexHTML =  '''
@@ -42,7 +39,11 @@ def reverse():
     # if it's a post request we get the response from the webService and return it
     if request.method == 'POST':
         text = request.form['text']
-        response = sendRequest(serverURL, '/reverse', {'text': text})
+        # if using https use the correct port
+        if (request.environ.get('wsgi.url_scheme') == 'https'):
+            response = sendRequest('https://localhost:443', '/reverse', {'text': text})
+        else:
+            response = sendRequest('http://localhost:80', '/reverse', {'text': text})
         return f'Reversed text: {response}'
     return reverseHTML
 
@@ -53,7 +54,11 @@ def fibonacci():
     # if it's a post request we get the response from the webService and display it
     if request.method == 'POST':
         index = int(request.form['index'])
-        response = sendRequest(serverURL, '/fibonacci', {'index': index})
+        # if using https use the correct port
+        if (request.environ.get('wsgi.url_scheme') == 'https'):
+            response = sendRequest( 'https://localhost:443', '/fibonacci', {'index': index})
+        else:
+            response = sendRequest('http://localhost:80', '/fibonacci', {'index': index})
         return f'Fibonacci number at position {index}: {response}'
     return fibonacciHTML
 
@@ -67,17 +72,13 @@ def sendRequest(baseURL, endpoint, data):
 
 # function made to run an http server on port 900
 def runHttpServer():
-    # Run the HTTP server on port 900
     app.run(port=900)
 
 # function made to run an https server on port 901
 def runHttpsServer():
-    # first we configure serverURL so we talk to the webService using https too
-    serverURL = 'https://localhost:443'
     # setup the ssl encryption to be able to enable https using a self signed cert
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('./certificate.crt', './private_key.key')
-    # Run the HTTPS server on port 901
     app.run(port=901, ssl_context=context)
 
 # main function
