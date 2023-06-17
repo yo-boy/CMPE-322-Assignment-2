@@ -7,16 +7,16 @@ app = Flask(__name__)
 @app.route('/reverse', methods=['POST'])
 def reverse():
     text = request.form['text']
-    reversed_text = text[::-1]
-    return reversed_text
+    reversedText = text[::-1]
+    return reversedText
 
 @app.route('/fibonacci', methods=['POST'])
 def fibonacci():
-    position = int(request.form['position'])
-    fib_number = calculate_fibonacci(position)
-    return str(fib_number)
+    position = int(request.form['index'])
+    fibNumber = calculateFibonacci(position)
+    return str(fibNumber)
 
-def calculate_fibonacci(n):
+def calculateFibonacci(n):
     a, b = 0, 1
     if n < 0:
         return "Invalid input. please enter a positive integer."
@@ -31,20 +31,20 @@ def calculate_fibonacci(n):
             b = c
         return b
 
-def run_http_server():
+def runHttpServer():
     app.run(port=80)
 
-def run_https_server():
+def runHttpsServer():
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('./certificate.crt', './private_key.key')  # Replace with your certificate and private key paths
     app.run(port=443, ssl_context=context)
 
 if __name__ == '__main__':
-    http_thread = threading.Thread(target=run_http_server)
-    https_thread = threading.Thread(target=run_https_server)
+    httpThread = threading.Thread(target=runHttpServer)
+    httpsThread = threading.Thread(target=runHttpsServer)
 
-    http_thread.start()
-    https_thread.start()
+    httpThread.start()
+    httpsThread.start()
 
-    http_thread.join()
-    https_thread.join()
+    httpThread.join()
+    httpsThread.join()
