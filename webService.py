@@ -26,7 +26,7 @@ def fibonacci():
 # function to calculate the fibonacci number at index n
 def calculateFibonacci(n):
     if n > 20577:
-        return "Invalid input. number is too large, please enter a smaller one."
+        return "Invalid input. number is too large, please enter a smaller one. (limit is 20577)"
     a, b = 0, 1
     if n < 0:
         return "Invalid input. please enter a positive integer."
