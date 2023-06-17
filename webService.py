@@ -24,9 +24,11 @@ def calculate_fibonacci(n):
     elif n == 2:
         return 1
     else:
-        a, b = 0, 1
+        a = 0
+        b = 1
         for _ in range(2, n):
-            a, b = b, a + b
+            a = b
+            b = a + b
         return b
 
 def run_http_server():
