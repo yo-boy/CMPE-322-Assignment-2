@@ -17,18 +17,18 @@ def fibonacci():
     return str(fib_number)
 
 def calculate_fibonacci(n):
-    if n <= 0:
-        return "Invalid input. Please enter a positive integer."
+    a, b = 0, 1
+    if n < 0:
+        return "Invalid input. please enter a positive integer."
+    elif n == 0:
+        return a
     elif n == 1:
-        return 0
-    elif n == 2:
-        return 1
+        return b
     else:
-        a = 0
-        b = 1
-        for _ in range(2, n):
+        for i in range(n-1):
+            c = a + b
             a = b
-            b = a + b
+            b = c
         return b
 
 def run_http_server():
