@@ -1,21 +1,29 @@
+# import flask and threading and ssl (for https)
 from flask import Flask, request
 import threading
 import ssl
 
+# creating the flask app
 app = Flask(__name__)
 
+# route decorator for the reverse url endpoint
 @app.route('/reverse', methods=['POST'])
 def reverse():
+    # we take the text from the request and flip it using a list operator
     text = request.form['text']
     reversedText = text[::-1]
     return reversedText
 
+# route decorator for the fibonacci endpoint
 @app.route('/fibonacci', methods=['POST'])
 def fibonacci():
+    # take the index from the request and calculate the fibonacci number
     position = int(request.form['index'])
     fibNumber = calculateFibonacci(position)
+    # we cast it to string since that is the expected output
     return str(fibNumber)
 
+# function to calculate the fibonacci number at index n
 def calculateFibonacci(n):
     a, b = 0, 1
     if n < 0:
@@ -31,20 +39,28 @@ def calculateFibonacci(n):
             b = c
         return b
 
+# function to run the http server on port 80
 def runHttpServer():
     app.run(port=80)
 
+# function to run the https server on port 443
 def runHttpsServer():
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    context.load_cert_chain('./certificate.crt', './private_key.key')  # Replace with your certificate and private key paths
+    context.load_cert_chain('./certificate.crt', './private_key.key')
     app.run(port=443, ssl_context=context)
 
-if __name__ == '__main__':
+# main function
+def main():
+    # create two threads to run the http and https servers
     httpThread = threading.Thread(target=runHttpServer)
     httpsThread = threading.Thread(target=runHttpsServer)
-
+    # start both server threads
     httpThread.start()
     httpsThread.start()
-
+    # wait for both servers to exit
     httpThread.join()
     httpsThread.join()
+
+# only run the server threads if the code is executed as a script
+if __name__ == '__main__':
+    main()
